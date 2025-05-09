@@ -1,0 +1,7 @@
+# Don't remove this imports, it's used to auto-register the validators
+from automation_utils.topology.topology_validators.drivenets.interfaces_status_validator import InterfacesStatusValidator
+from automation_utils.topology.topology_validators.drivenets.system_status_validator import SystemStatusValidator
+from automation_utils.topology.topology_validators.drivenets.lldp_neighbors_validators import LldpNeighborsValidator
+from automation_utils.topology.topology_validators.drivenets.pim_interfaces_validator import PimInterfacesValidator
+from automation_utils.topology.topology_validators.drivenets.isis_neighbors_validator import IsisNeighborsValidator
+from automation_utils.topology.topology_validators.drivenets.bgp_neighbors_validator import BgpNeighborsValidator

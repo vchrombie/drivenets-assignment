@@ -1,0 +1,286 @@
+---
+ports:
+- location: eth1
+  name: p1
+- location: eth2
+  name: p2
+- location: eth3
+  name: p3
+devices:
+- ethernets:
+  - connection:
+      choice: port_name
+      port_name: p1
+    ipv4_addresses:
+    - gateway: 10.10.10.2
+      address: 10.10.10.1
+      prefix: 24
+      name: p1d1ipv4
+    mac: 00:aa:00:aa:55:01
+    mtu: 1500
+    name: p1d1eth
+  bgp:
+    router_id: 10.10.10.1
+    ipv4_interfaces:
+    - ipv4_name: p1d1ipv4
+      peers:
+      - peer_address: 10.10.10.2
+        as_type: ebgp
+        as_number: 1000
+        as_number_width: four
+        v4_routes:
+        - addresses:
+          - address: 30.30.30.0
+            prefix: 24
+            count: 5
+            step: 1
+          next_hop_mode: local_ip
+          next_hop_address_type: ipv4
+          next_hop_ipv4_address: 0.0.0.0
+          next_hop_ipv6_address: "::0"
+          name: p1d1bgp_r_1
+        name: p1_bgp_peer
+  name: p1d1
+- ethernets:
+  - connection:
+      choice: port_name
+      port_name: p2
+    ipv4_addresses:
+    - gateway: 10.20.20.2
+      address: 10.20.20.1
+      prefix: 24
+      name: p2d1ipv4
+    mac: 00:aa:00:55:aa:02
+    mtu: 1500
+    name: p2d1eth
+  bgp:
+    router_id: 10.20.20.1
+    ipv4_interfaces:
+    - ipv4_name: p2d1ipv4
+      peers:
+      - peer_address: 10.20.20.2
+        as_type: ebgp
+        as_number: 2000
+        as_number_width: four
+        v4_routes:
+        - addresses:
+          - address: 40.40.40.0
+            prefix: 24
+            count: 5
+            step: 1
+          next_hop_mode: local_ip
+          next_hop_address_type: ipv4
+          next_hop_ipv4_address: 0.0.0.0
+          next_hop_ipv6_address: "::0"
+          name: p2d1bgp_r_1
+        name: p2_bgp_peer
+  name: p2d1
+flows:
+- tx_rx:
+    choice: device
+    device:
+      mode: mesh
+      tx_names:
+      - p1d1ipv4
+      rx_names:
+      - p2d1ipv4
+  packet:
+  - choice: ethernet
+    ethernet:
+      dst:
+        choice: auto
+        auto: 00:00:00:00:00:00
+      src:
+        choice: value
+        value: 00:aa:00:aa:55:01
+      ether_type:
+        choice: auto
+        auto: 65535
+  - choice: ipv4
+    ipv4:
+      version:
+        choice: value
+        value: 4
+      header_length:
+        choice: auto
+        auto: 5
+      priority:
+        choice: dscp
+        dscp:
+          phb:
+            choice: value
+            value: 0
+          ecn:
+            choice: value
+            value: 0
+      total_length:
+        choice: auto
+        auto: 46
+      identification:
+        choice: value
+        value: 0
+      reserved:
+        choice: value
+        value: 0
+      dont_fragment:
+        choice: value
+        value: 0
+      more_fragments:
+        choice: value
+        value: 0
+      fragment_offset:
+        choice: value
+        value: 0
+      time_to_live:
+        choice: value
+        value: 64
+      protocol:
+        choice: auto
+        auto: 61
+      src:
+        choice: value
+        value: 10.10.10.1
+      dst:
+        choice: value
+        value: 10.20.20.1
+  - choice: udp
+    udp:
+      src_port:
+        choice: increment
+        increment:
+          start: 5000
+          step: 10
+          count: 10
+      dst_port:
+        choice: values
+        values:
+        - 6000
+        - 6010
+        - 6020
+        - 6030
+        - 6040
+        - 6050
+        - 6060
+        - 6070
+        - 6080
+        - 6090
+  size:
+    choice: fixed
+    fixed: 128
+  rate:
+    choice: pps
+    pps: '500'
+  duration:
+    choice: fixed_packets
+    fixed_packets:
+      packets: 1000
+      gap: 12
+  metrics:
+    enable: true
+    loss: false
+    timestamps: true
+  name: f1_p1_p2
+- tx_rx:
+    choice: device
+    device:
+      mode: mesh
+      tx_names:
+      - p2d1ipv4
+      rx_names:
+      - p1d1ipv4
+  packet:
+  - choice: ethernet
+    ethernet:
+      dst:
+        choice: auto
+        auto: 00:00:00:00:00:00
+      src:
+        choice: value
+        value: 00:aa:00:55:aa:02
+      ether_type:
+        choice: auto
+        auto: 65535
+  - choice: ipv4
+    ipv4:
+      version:
+        choice: value
+        value: 4
+      header_length:
+        choice: auto
+        auto: 5
+      priority:
+        choice: dscp
+        dscp:
+          phb:
+            choice: value
+            value: 0
+          ecn:
+            choice: value
+            value: 0
+      total_length:
+        choice: auto
+        auto: 46
+      identification:
+        choice: value
+        value: 0
+      reserved:
+        choice: value
+        value: 0
+      dont_fragment:
+        choice: value
+        value: 0
+      more_fragments:
+        choice: value
+        value: 0
+      fragment_offset:
+        choice: value
+        value: 0
+      time_to_live:
+        choice: value
+        value: 64
+      protocol:
+        choice: auto
+        auto: 61
+      src:
+        choice: value
+        value: 10.20.20.1
+      dst:
+        choice: value
+        value: 10.10.10.1
+  - choice: udp
+    udp:
+      src_port:
+        choice: increment
+        increment:
+          start: 7000
+          step: 10
+          count: 10
+      dst_port:
+        choice: values
+        values:
+        - 8000
+        - 8010
+        - 8020
+        - 8030
+        - 8040
+        - 8050
+        - 8060
+        - 8070
+        - 8080
+        - 8090
+  size:
+    choice: fixed
+    fixed: 512
+  rate:
+    choice: pps
+    pps: '500'
+  duration:
+    choice: fixed_packets
+    fixed_packets:
+      packets: 1000
+      gap: 12
+  metrics:
+    enable: true
+    loss: false
+    timestamps: true
+  name: f1_p2_p1
